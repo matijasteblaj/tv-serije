@@ -1,7 +1,7 @@
 import re
 import os
 import requests
-import sys
+
 
 def naredi_mapo():
     '''Naredi mapo imdb v mapi eno stopnjo višje od trenutne poti.'''
