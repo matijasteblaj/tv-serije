@@ -16,34 +16,30 @@ def naredi_mapo():
     os.chdir(m)
 
 def shrani_html(url, ime):
-    '''V mapo imdb shrani tekst html strani iz url-ja url, v datoteko ime.txt'''
+    '''V trenutno mapo shrani tekst html strani iz url-ja url,
+    v datoteko ime.txt, ce ta se ne obstaja.'''
     if os.path.isfile(ime):
         return
-    m = trenutna_mapa()
-    os.chdir('../imdb')
     r = requests.get(url, headers={'Accept-Language':'en'})
     with open(ime + '.txt', 'w') as f:
         f.write(str(r.text.encode('utf8')))
-    os.chdir('../' + m)
 
 def potegni_serije():
     '''Iz datoteke list.txt iz mape imdb najde in shrani vseh 250 spletnih
-    strani serij v mapo imdb, pod njihovimi siframi, naredi legenda.txt,
-    kjer za vsako sifro pise, na katero serijo se nanasa.'''
+    strani serij v mapo imdb, pod njihovimi siframi, naredi vse_serije.txt,
+    kjer so napisane sifre vseh shranjenih serij.'''
     m = trenutna_mapa()
     naredi_mapo()
+    os.chdir('../imdb')
     shrani_html('http://www.imdb.com/chart/toptv/',
                 'list')
-    os.chdir('../imdb')
     with open('list.txt', 'r') as f:
         text = f.read()
-    slovar_serij = {}
-    for stvar in re.finditer(r'.*?\d+\.\\n *?<a href="(/title/tt(\d+)/).*?>(.*?)</a>', text):
-        shrani_html('http://www.imdb.com' + stvar.group(1), stvar.group(2))
-        slovar_serij[stvar.group(2)] = stvar.group(3)
-    with open('legenda.txt', 'w') as g:
-        for sifra in slovar_serij:
-            g.write(sifra + ':' + slovar_serij[sifra] + ',')
+    with open('vse_serije.txt', 'w') as g:
+        for stvar in re.finditer(
+            r'.*?\d+\.\\n *?<a href="(/title/tt(\d+)/).*?>(.*?)</a>', text):
+            shrani_html('http://www.imdb.com' + stvar.group(1), stvar.group(2))
+            g.write(stvar.group(2) + ',')
     os.chdir('../' + m)
 
         
