@@ -8,10 +8,10 @@ vzorec_serij = re.compile(
         r'itemprop="ratingCount">(?P<st_glasov>.*?)</span>.*?'
         r'data-tconst="tt(?P<id>\d{7})".*?'
         r'<h1 itemprop="name" class=".*?">(?P<naslov>.*?)&nbsp;.*?'
-        r'datetime=".*?">.*?(?P<dolzina>\d{1,3}\D+)\\n.*?</time>.*?'
-        r'>TV .*?Series (?P<leto>\(.*?\)).*?'
+        r'datetime=".*?">.*?(?P<dolzina>\d{1,3}\D{1,3}).*?</time>.*?'
+        r'>TV .*?Series \((?P<leto>.*?)\).*?'
         r'"bp_sub_heading">(?P<epizode>\d+) episodes?</span>.*?'
-        r'<div class="summary_text" itemprop="description">\\n\s+(?P<opis>.*?)\\n.*?'
+        r'<div class="summary_text" itemprop="description">\W+(?P<opis>.*?\.)\W+<.*?'
         r'<h2>Cast</h2>(?P<igralci>.*?)See full cast.*?'
         r'Genres:</h4>(?P<zanri>.*?)</div>.*?'
         r'Country:</h4>(?P<drzave>.*?)</div>.*?'
@@ -35,11 +35,12 @@ def predelaj_podatke(serija):
     serija['drzave'] = re.findall(r'itemprop=.*?url.*?>(.*?)</a>',
                                   serija['drzave'])
     serija['st_glasov'] = int(serija['st_glasov'].replace(',', ''))
-    serija['zanri'] = re.findall(r'stry_gnr"\\n> (\D+?)</a>',
+    serija['zanri'] = re.findall(r'stry_gnr"\W*> (\D+?)</a>',
                                serija['zanri'])
     i = re.findall(
-        r'itemprop="name">(.*?)</span>.*?<div>.*?&nbsp;(.*?)\\n',
-                                   serija['igralci'])
+        r'itemprop="name">(.*?)</span>.*?'
+        r'&nbsp;(.*?)\n'
+        ,serija['igralci'], flags = re.DOTALL)
     j = []
     for (x,y) in i:
         y1 = y
@@ -51,7 +52,7 @@ def predelaj_podatke(serija):
     
 def zberi_podatke(ime_datoteke):
     '''Zbere podatke o tv seriji iz njene datoteke in vrne slovar vrednosti.'''
-    with open(ime_datoteke, 'r') as f:
+    with open(ime_datoteke, 'r', encoding='utf-8') as f:
         vsebina = f.read()
     for stvar in re.finditer(vzorec_serij, vsebina):
         serija = stvar.groupdict()

@@ -21,8 +21,9 @@ def shrani_html(url, ime):
     if os.path.isfile(ime):
         return
     r = requests.get(url, headers={'Accept-Language':'en'})
-    with open(ime + '.txt', 'w') as f:
-        f.write(str(r.text.encode('utf8')))
+    with open(ime + '.txt', 'w', encoding ='utf-8') as f:
+        f.write(r.text)
+    print(ime, 'ok')
 
 def potegni_serije():
     '''Iz datoteke list.txt iz mape imdb najde in shrani vseh 250 spletnih
@@ -37,7 +38,7 @@ def potegni_serije():
         text = f.read()
     with open('vse_serije.txt', 'w') as g:
         for stvar in re.finditer(
-            r'.*?\d+\.\\n *?<a href="(/title/tt(\d+)/).*?>(.*?)</a>', text):
+            r'.*?\d{1,3}\W*?<a href="(/title/tt(\d+)/)\?.*?', text):
             shrani_html('http://www.imdb.com' + stvar.group(1), stvar.group(2))
             g.write(stvar.group(2) + ',')
     os.chdir('../' + m)
