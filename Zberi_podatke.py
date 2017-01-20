@@ -29,8 +29,10 @@ def predelaj_podatke(serija):
             if x == 'h':
                 h = 60
             cas = h * int(serija['dolzina'].replace(x, ''))
-    serija['dolzina'] = cas
     serija['epizode'] = int(serija['epizode'])
+    if cas > 90:
+        cas = cas // serija['epizode']
+    serija['dolzina'] = cas
     serija['ocena'] = float(serija['ocena'])
     serija['drzave'] = re.findall(r'itemprop=.*?url.*?>(.*?)</a>',
                                   serija['drzave'])
