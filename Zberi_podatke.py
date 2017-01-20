@@ -11,7 +11,7 @@ vzorec_serij = re.compile(
         r'datetime=".*?">.*?(?P<dolzina>\d{1,3}\D{1,3}).*?</time>.*?'
         r'>TV .*?Series \((?P<leto>.*?)\).*?'
         r'"bp_sub_heading">(?P<epizode>\d+) episodes?</span>.*?'
-        r'<div class="summary_text" itemprop="description">\W+(?P<opis>.*?\.)\W+<.*?'
+        r'<div class="summary_text" itemprop="description">\W+(?P<opis>.*?[\.|!]).*?'
         r'<h2>Cast</h2>(?P<igralci>.*?)See full cast.*?'
         r'Genres:</h4>(?P<zanri>.*?)</div>.*?'
         r'Country:</h4>(?P<drzave>.*?)</div>.*?'
@@ -48,6 +48,12 @@ def predelaj_podatke(serija):
             y1=((y.split('>')[1]).split('<')[0])
         j.append((x,y1))
     serija['igralci'] = j
+    linki = re.findall(
+        r'<.*?>.*?',
+        serija['opis'])
+    for link in linki:
+        serija['opis'] = serija['opis'].replace(link, '')
+    serija['opis'] = serija['opis'].replace('&quot;', '')
     return serija
     
 def zberi_podatke(ime_datoteke):
@@ -62,12 +68,11 @@ def seznam_serij():
     n = ss.trenutna_mapa()
     serije = []
     os.chdir('../imdb')
-    with open('vse_serije.txt', 'r') as g:
+    with open('vse_serije.txt', 'r', encoding='utf-8') as g:
         text = g.read().strip(',')
     for sifra in (text.split(',')):
         if sifra in ['1230180', '3358020', '1493239']:
             continue
-        #print(zberi_podatke(sifra+'.txt'))
         serije.append(zberi_podatke(sifra + '.txt'))
     os.chdir('../' + n)
     return serije
