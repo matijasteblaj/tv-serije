@@ -1,3 +1,13 @@
-﻿# tv-serije
+﻿# TV-Serije
 
-Ta repozitorij vsebuje projekt pri Programiranju 1. Iz spletne domene imdb.com potegnemo podatke in jih analiziramo. Rezultati so predstavljeni v neki datoteki.
+Ta repozitorij vsebuje moj projekt pri Programiranju 1 - zajem in analizo podatkov o najbolj popularnih TV serijah.
+
+#Zajeti podatki:
+- naslov
+- kratek opis
+- žanri
+- leta izida
+- dolžine epizod
+- število epizod
+- ocena, število glasov
+- igralci (in vloge)
