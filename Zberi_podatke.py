@@ -18,11 +18,11 @@ vzorec_serij = re.compile(
         ,flags = re.DOTALL)
 
 def predelaj_podatke(serija):
-    seznam_let = re.findall(r'[12][90]\d{2}', serija['leto'])
-    k=''
-    if len(seznam_let) == 2:
-        k = seznam_let[-1]
-    serija['leto'] = (seznam_let[0] + '-' + k)
+##    seznam_let = re.findall(r'[12][90]\d{2}', serija['leto'])
+##    k=''
+##    if len(seznam_let) == 2:
+##        k = seznam_let[-1]
+    serija['leto'] = serija['leto'].strip()#(seznam_let[0] + '-' + k).strip('-')
     for x in ['h', 'min']:
         if x in serija['dolzina']:
             h = 1
@@ -77,10 +77,15 @@ def seznam_slovarjev(necesa='serij'):
         if sifra in ['1230180', '3358020', '1493239']:
             continue
         if necesa == 'serij':
-            seznam.append(zberi_podatke(sifra + '.txt'))
+            j = dict(zberi_podatke(sifra + '.txt'))
+            del j['igralci']
+            del j['zanri']
+            del j['drzave']
+            seznam.append(j)
         elif necesa == 'igralcev':    
             for (id_, ime, vloga) in zberi_podatke(sifra + '.txt')['igralci']:
                 igralec = {}
+                igralec['id'] = sifra
                 igralec['id igralca'] = id_
                 igralec['ime'] = ime
                 igralec['vloga'] = vloga
@@ -97,6 +102,25 @@ def seznam_slovarjev(necesa='serij'):
                 drzava1['id'] = sifra
                 drzava1['drzava'] = drzava
                 seznam.append(drzava1)
+        elif necesa == 'let':
+            l = zberi_podatke(sifra + '.txt')['leto']
+            if '–' not in l:
+                leto1={}
+                leto1['id'] = sifra
+                leto1['leto'] = int(l)
+                seznam.append(leto1)
+            elif '–' in l and len(l) == 5:
+                for i in range(int(l.strip('–')), 2017):
+                    leto1={}
+                    leto1['id'] = sifra
+                    leto1['leto'] = i
+                    seznam.append(leto1)
+            else:
+                for i in range(int(l.split('–')[0]), int(l.split('–')[1])+1):
+                    leto1={}
+                    leto1['id'] = sifra
+                    leto1['leto'] = i
+                    seznam.append(leto1)
         else:
             return 'Ni veljaven parameter!(veljavni so: serij/zanrov/igralcev)'
     os.chdir('../' + n)
@@ -104,9 +128,8 @@ def seznam_slovarjev(necesa='serij'):
 
 def naredi_csv(ime='serije',
                sez_slovarjev=seznam_slovarjev('serij'),
-               imena_polj=['id', 'naslov','opis', 'zanri','leto',
-                                 'drzave', 'dolzina', 'epizode', 'ocena',
-                                 'st_glasov', 'igralci']):
+               imena_polj=['id', 'naslov','opis','leto', 'dolzina', 'epizode',
+                           'ocena', 'st_glasov']):
     with open(ime + '.csv', 'w', encoding= 'utf-8') as f:
         writer = csv.DictWriter(f, fieldnames =imena_polj)
         writer.writeheader()
