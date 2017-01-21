@@ -40,15 +40,16 @@ def predelaj_podatke(serija):
     serija['zanri'] = re.findall(r'stry_gnr"\W*> (\D+?)</a>',
                                serija['zanri'])
     i = re.findall(
+        r'<a href="/name/nm(\d{7})/.*?'
         r'itemprop="name">(.*?)</span>.*?'
         r'&nbsp;(.*?)\n'
         ,serija['igralci'], flags = re.DOTALL)
     j = []
-    for (x,y) in i:
-        y1 = y
-        if '<' in y:
-            y1=((y.split('>')[1]).split('<')[0])
-        j.append((x,y1))
+    for (x,y,z) in i:
+        z1 = z
+        if '<' in z:
+            z1=((z.split('>')[1]).split('<')[0])
+        j.append((x,y,z1))
     serija['igralci'] = j
     linki = re.findall(
         r'<.*?>.*?',
@@ -66,26 +67,49 @@ def zberi_podatke(ime_datoteke):
         serija = stvar.groupdict()
     return predelaj_podatke(serija)
 
-def seznam_serij():
+def seznam_slovarjev(necesa='serij'):
     n = ss.trenutna_mapa()
-    serije = []
+    seznam = []
     os.chdir('../imdb')
     with open('vse_serije.txt', 'r', encoding='utf-8') as g:
         text = g.read().strip(',')
     for sifra in (text.split(',')):
         if sifra in ['1230180', '3358020', '1493239']:
             continue
-        serije.append(zberi_podatke(sifra + '.txt'))
+        if necesa == 'serij':
+            seznam.append(zberi_podatke(sifra + '.txt'))
+        elif necesa == 'igralcev':    
+            for (id_, ime, vloga) in zberi_podatke(sifra + '.txt')['igralci']:
+                igralec = {}
+                igralec['id igralca'] = id_
+                igralec['ime'] = ime
+                igralec['vloga'] = vloga
+                seznam.append(igralec)
+        elif necesa == 'zanrov':
+            for zanr in zberi_podatke(sifra + '.txt')['zanri']:
+                zanr1 = {}
+                zanr1['id'] = sifra
+                zanr1['zanr'] = zanr
+                seznam.append(zanr1)
+        elif necesa == 'drzav':
+            for drzava in zberi_podatke(sifra + '.txt')['drzave']:
+                drzava1 = {}
+                drzava1['id'] = sifra
+                drzava1['drzava'] = drzava
+                seznam.append(drzava1)
+        else:
+            return 'Ni veljaven parameter!(veljavni so: serij/zanrov/igralcev)'
     os.chdir('../' + n)
-    return serije
+    return seznam
 
-def naredi_csv():
-    with open('serije.csv', 'w') as f:
-        writer = csv.DictWriter(f, fieldnames =
-                                ['id', 'naslov','opis', 'zanri','leto',
+def naredi_csv(ime='serije',
+               sez_slovarjev=seznam_slovarjev('serij'),
+               imena_polj=['id', 'naslov','opis', 'zanri','leto',
                                  'drzave', 'dolzina', 'epizode', 'ocena',
-                                 'st_glasov', 'igralci'])
+                                 'st_glasov', 'igralci']):
+    with open(ime + '.csv', 'w', encoding= 'utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames =imena_polj)
         writer.writeheader()
-        for serija in seznam_serij():
+        for serija in sez_slovarjev:
             writer.writerow(serija)
     
