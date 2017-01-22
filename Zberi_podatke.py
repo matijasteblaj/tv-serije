@@ -18,11 +18,7 @@ vzorec_serij = re.compile(
         ,flags = re.DOTALL)
 
 def predelaj_podatke(serija):
-##    seznam_let = re.findall(r'[12][90]\d{2}', serija['leto'])
-##    k=''
-##    if len(seznam_let) == 2:
-##        k = seznam_let[-1]
-    serija['leto'] = serija['leto'].strip()#(seznam_let[0] + '-' + k).strip('-')
+    serija['leto'] = serija['leto'].strip()
     for x in ['h', 'min']:
         if x in serija['dolzina']:
             h = 1
