@@ -23,7 +23,7 @@ def shrani_html(url, ime):
     r = requests.get(url, headers={'Accept-Language':'en'})
     with open(ime + '.txt', 'w', encoding ='utf-8') as f:
         f.write(r.text)
-    print(ime, 'ok')
+    print(ime, 'shranjeno')
 
 def potegni_serije():
     '''Iz datoteke list.txt iz mape imdb najde in shrani vseh 250 spletnih

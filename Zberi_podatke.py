@@ -131,4 +131,15 @@ def naredi_csv(ime='serije',
         writer.writeheader()
         for serija in sez_slovarjev:
             writer.writerow(serija)
-    
+
+
+def pripravi_datoteke():
+    sez =[('serije', seznam_slovarjev('serij'), ['id', 'naslov','opis','leto', 'dolzina', 'epizode',
+                           'ocena', 'st_glasov']),
+        ('zanri', seznam_slovarjev('zanrov'), ['id', 'zanr']),
+        ('drzave', seznam_slovarjev('drzav'), ['id', 'drzava']),
+        ('igralci', seznam_slovarjev('igralcev'), ['id', 'id igralca',
+                                                   'ime', 'vloga']),
+        ('leta', seznam_slovarjev('let'), ['id', 'leto'])]
+    for (a,b,c) in sez:
+        naredi_csv(a, b, c)
